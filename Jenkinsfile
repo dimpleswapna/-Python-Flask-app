@@ -8,7 +8,7 @@ pipeline {
   stages {
     stage('Clone') {
       steps {
-        git 'https://github.com/dimpleswapna/-Python-Flask-app.git'
+        git 'https://github.com/dimpleswapna/Python-Flask-app.git'
       }
     }
 
