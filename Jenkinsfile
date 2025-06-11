@@ -2,13 +2,13 @@ pipeline {
   agent any
 
   environment {
-    DOCKER_IMAGE = 'your-dockerhub-username/devops-app:latest'
+    DOCKER_IMAGE = 'swpanahd/devops-app:latest'
   }
 
   stages {
     stage('Clone') {
       steps {
-        git 'https://github.com/your-username/devops-pipeline.git'
+        git 'https://github.com/dimpleswapna/devops-pipeline.git'
       }
     }
 
