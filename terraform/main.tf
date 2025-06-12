@@ -1,21 +1,26 @@
 provider "aws" {
-  region = "ap-south-1"
+  region = var.aws_region
 }
 
 module "eks" {
   source          = "terraform-aws-modules/eks/aws"
-  cluster_name    = "devops-eks"
-  cluster_version = "1.24"
-  subnets         = ["subnet-12345678", "subnet-87654321"]
-  vpc_id          = "vpc-abc123"
+  cluster_name    = var.cluster_name
+  cluster_version = "1.27"
+  subnets         = var.subnet_ids
+  vpc_id          = var.vpc_id
+  enable_irsa     = true
   manage_aws_auth = true
   node_groups = {
-    default = {
+    eks_nodes = {
       desired_capacity = 2
       max_capacity     = 3
       min_capacity     = 1
-
-      instance_type = "t3.medium"
+      instance_type    = "t3.medium"
     }
   }
+}
+
+output "kubeconfig" {
+  value = module.eks.kubeconfig
+  sensitive = true
 }
