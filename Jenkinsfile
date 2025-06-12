@@ -1,36 +1,33 @@
 pipeline {
-  agent any
-
-  environment {
-    DOCKER_IMAGE = 'swpanahd/devops-app:latest'
   }
-
   stages {
-    stage('Clone') {
+    stage('Checkout') {
       steps {
-        git 'https://github.com/dimpleswapna/Python-Flask-app.git'
+        git 'https://github.com/yourusername/my-devops-project.git'
       }
     }
-
     stage('Build Docker Image') {
       steps {
-        sh 'docker build -t $DOCKER_IMAGE .'
-      }
-    }
-
-    stage('Push Docker Image') {
-      steps {
-        withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-          sh 'echo $PASSWORD | docker login -u $USERNAME --password-stdin'
-          sh 'docker push $DOCKER_IMAGE'
+        dir('backend') {
+          sh 'docker build -t myapp:latest .'
         }
       }
     }
-
-    stage('Deploy to K8s') {
+    stage('Push to ECR') {
       steps {
-        sh 'kubectl apply -f k8s/deployment.yaml'
-        sh 'kubectl apply -f k8s/service.yaml'
+        sh '''
+        aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REPO
+        docker tag myapp:latest $ECR_REPO:latest
+        docker push $ECR_REPO:latest
+        '''
+      }
+    }
+    stage('Deploy to EKS') {
+      steps {
+        sh '''
+        aws eks --region $AWS_REGION update-kubeconfig --name $CLUSTER_NAME
+        kubectl apply -f k8s/
+        '''
       }
     }
   }
